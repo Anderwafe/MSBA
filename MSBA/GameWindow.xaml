@@ -1,0 +1,36 @@
+﻿<Window x:Class="MSBA.GameWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:MSBA"
+        mc:Ignorable="d"
+        Title="MSBA" Height="450" Width="800"
+        MinHeight="300" MinWidth="600">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="30"></RowDefinition>
+            <RowDefinition></RowDefinition>
+        </Grid.RowDefinitions>
+        <StackPanel Grid.Row="0" VerticalAlignment="Center" Orientation="Horizontal" HorizontalAlignment="Left">
+            <Border VerticalAlignment="Center" Width="250" BorderBrush="Black" BorderThickness="1">
+                <Label x:Name="lblPresetName" FontSize="14" VerticalContentAlignment="Center">Предустановка: </Label>
+            </Border>
+            <Border VerticalAlignment="Center" Width="150" BorderBrush="Black" BorderThickness="1">
+                <StackPanel Orientation="Horizontal">
+                    <Label FontSize="14" VerticalContentAlignment="Center" HorizontalAlignment="Left">Время: </Label>
+                    <Label x:Name="lblTime" FontSize="14" VerticalContentAlignment="Center" HorizontalAlignment="Right">0</Label>
+                </StackPanel>
+            </Border>
+            <Border VerticalAlignment="Center" Width="300" BorderBrush="Black" BorderThickness="1">
+                <StackPanel Orientation="Horizontal">
+                    <Label x:Name="lblBombs1" FontSize="14" VerticalContentAlignment="Center" HorizontalAlignment="Left">Бомб всего/помечено:</Label>
+                    <Label x:Name="lblBombs2" FontSize="14" VerticalContentAlignment="Center" HorizontalAlignment="Right"></Label>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+        <ScrollViewer Grid.Row="1">
+            <StackPanel x:Name="Playground" Orientation="Vertical"></StackPanel>
+        </ScrollViewer>
+    </Grid>
+</Window>

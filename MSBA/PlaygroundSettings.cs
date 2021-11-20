@@ -43,7 +43,7 @@ namespace MSBA
                     else
                     {
                         CellCount = Cells;
-                        BombCount = Bombs;
+                        BombCount = Bombs/100;
                         BombType = Type;
                         return true;
                     }

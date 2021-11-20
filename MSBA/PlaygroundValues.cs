@@ -15,6 +15,8 @@ namespace MSBA
         // 0-8 - bombs count
 
         public static int BombsCount = 0;
+        public static string ResultTime = "";
+        public static string PresetName = "";
 
         public static bool CreatePlaygroundTable(int Cells, int Bombs)
         {

@@ -40,7 +40,7 @@ namespace MSBA
                 Playground.Children.Add(Panels[i]);
             }
 
-            lblPresetName.Content += " Пользовательское";
+            lblPresetName.Content += $" {PlaygroundValues.PresetName}";
             lblBombs1.Content += $" {PlaygroundValues.BombsCount} /";
             lblBombs2.Content = "0";
 
@@ -149,7 +149,10 @@ namespace MSBA
                             dispatcherTimer.IsEnabled = false;
                             dispatcherTimer.Stop();
 
-                            MessageBox.Show("Вау. Возможно, это и называется победой? \nПоздравляю!", "Неожиданно", MessageBoxButton.OK, MessageBoxImage.Information);
+                            PlaygroundValues.ResultTime = lblTime.Content.ToString();
+                            WinWindow WW = new();
+                            WW.ShowDialog();
+                            //MessageBox.Show("Вау. Возможно, это и называется победой? \nПоздравляю!", "Неожиданно", MessageBoxButton.OK, MessageBoxImage.Information);
                             this.Close();
                         }
                     };

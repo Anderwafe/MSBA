@@ -1,0 +1,18 @@
+﻿<Window x:Class="MSBA.WindowForUserInput"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:MSBA"
+        mc:Ignorable="d"
+        Title="Название предустановки" Height="172" Width="316" WindowStyle="ToolWindow">
+    <Grid>
+        <StackPanel Orientation="Vertical" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+            <TextBox x:Name="tbPresetName" Height="50" Margin="20"></TextBox>
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+                <Button x:Name="btnOK" Height="43" Width="150" Content="Сохранить" FontSize="20" Background="Transparent" BorderBrush="Transparent"></Button>
+                <Button x:Name="btnCancel" Height="43" Width="150" Content="Отмена" FontSize="20" Background="Transparent" BorderBrush="Transparent"></Button>
+            </StackPanel>
+        </StackPanel>
+    </Grid>
+</Window>

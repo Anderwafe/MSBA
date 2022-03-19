@@ -8,6 +8,8 @@ namespace MSBA
 {
     public static class PlaygroundValues
     {
+        public static string GameName = "";
+
         public static char[,] PlaygroundTable;
         // Table cells content marking:
         // N - none

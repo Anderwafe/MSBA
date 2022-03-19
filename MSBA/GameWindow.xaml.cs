@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -26,6 +27,16 @@ namespace MSBA
         public GameWindow()
         {
             InitializeComponent();
+
+            System.ComponentModel.CancelEventHandler closingEvent = (s,e) =>
+            {
+                if (!Directory.Exists(System.IO.Path.Join(Environment.CurrentDirectory, "Saves")))
+                {
+                    Directory.CreateDirectory(System.IO.Path.Join(Environment.CurrentDirectory, "Saves"));
+                }
+                File.WriteAllText(System.IO.Path.Join(Environment.CurrentDirectory, "Saves", PlaygroundValues.GameName), )
+            };
+            this.Closing += closingEvent;
 
             dispatcherTimer.Tick += new EventHandler(TimerCallbackHandler);
             dispatcherTimer.Interval = TimeSpan.FromSeconds(1);
@@ -85,6 +96,7 @@ namespace MSBA
                                         dispatcherTimer.IsEnabled = false;
                                         dispatcherTimer.Stop();
                                         MessageBox.Show("Упс... Как говорится: \"Сапёр совершает лишь две ошибки за жизнь, и, боюсь, это была вторая...\"", "Ложись, мина!", MessageBoxButton.OK);
+                                        this.Closing -= closingEvent;
                                         this.Close();
                                     }
                                     if (char.IsDigit(PlaygroundValues.PlaygroundTable[i, j]) && PlaygroundValues.PlaygroundTable[i, j] != '0')
@@ -153,6 +165,7 @@ namespace MSBA
                             WinWindow WW = new();
                             WW.ShowDialog();
                             //MessageBox.Show("Вау. Возможно, это и называется победой? \nПоздравляю!", "Неожиданно", MessageBoxButton.OK, MessageBoxImage.Information);
+                            this.Closing -= closingEvent;
                             this.Close();
                         }
                     };

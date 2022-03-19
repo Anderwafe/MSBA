@@ -95,19 +95,6 @@ namespace MSBA
                     PresetChoose.SelectedIndex = 1;
                 }
             };
-            /*PresetChoose.KeyDown += (s, e) =>
-            {
-                ComboBox CB = (ComboBox)s;
-                switch (e.Key)
-                {
-                    case Key.Enter:
-                        {
-                            gamePresets[CB.SelectedIndex - 1] = new(CB.SelectedItem.ToString(), CellCount.Text, BombCount.Text, BombCountType.SelectedIndex == 0 ? PlaygroundSettings.BombCountType.Count : PlaygroundSettings.BombCountType.Percent);
-                            File.WriteAllText(System.IO.Path.Join(Environment.CurrentDirectory, "Presets"), JsonSerializer.Serialize<GamePreset[]>(gamePresets));
-                            break;
-                        }
-                }
-            };*/
             PresetChoose.SelectedIndex = 1;
 
             this.Closed += (s, e) =>
@@ -134,7 +121,8 @@ namespace MSBA
                             gamePresets[PresetChoose.SelectedIndex - 1].BombsCount = BombCount.Text;
                             gamePresets[PresetChoose.SelectedIndex - 1].BombsType = BombCountType.SelectedIndex == 0 ? PlaygroundSettings.BombCountType.Count : PlaygroundSettings.BombCountType.Percent;
                             PlaygroundValues.PresetName = gamePresets.ElementAt(PresetChoose.SelectedIndex - 1).Name;
-                            
+                            PlaygroundValues.GameName = DateTime.Now.ToString() + "_" + PlaygroundValues.PresetName;
+
                             this.Visibility = Visibility.Collapsed;
                             GameWindow gameWindow = new GameWindow();
                             gameWindow.ShowInTaskbar = true;

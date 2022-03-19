@@ -33,9 +33,9 @@ namespace MSBA
 
             btnSave.Click += (s, e) =>
             {
-                if (!Directory.Exists(System.IO.Path.Join(Environment.CurrentDirectory, "Saves")))
-                    Directory.CreateDirectory(System.IO.Path.Join(Environment.CurrentDirectory, "Saves"));
-                File.WriteAllText(System.IO.Path.Join(Environment.CurrentDirectory, "Saves", DateTime.Now.ToString("G").Replace(":", "-").Replace(".", "-").Replace(" ", "_")), MatchInfo.GetMatchInfo(new MatchInfo(lblPresetName.Content.ToString(), lblTime.Content.ToString(), lblMinesCount.Content.ToString(), lblCellsCount.Content.ToString())));
+                if (!Directory.Exists(System.IO.Path.Join(Environment.CurrentDirectory, "SavedStatistics")))
+                    Directory.CreateDirectory(System.IO.Path.Join(Environment.CurrentDirectory, "SavedStatistics"));
+                File.WriteAllText(System.IO.Path.Join(Environment.CurrentDirectory, "SavedStatistics", DateTime.Now.ToString("G").Replace(":", "-").Replace(".", "-").Replace(" ", "_")), MatchInfo.GetMatchInfo(new MatchInfo(lblPresetName.Content.ToString(), lblTime.Content.ToString(), lblMinesCount.Content.ToString(), lblCellsCount.Content.ToString())));
             };
         }
     }

@@ -24,10 +24,10 @@ namespace MSBA
         {
             InitializeComponent();
 
-            lblPresetName.Content = PlaygroundValues.PresetName;
-            lblTime.Content = PlaygroundValues.ResultTime;
-            lblCellsCount.Content = PlaygroundValues.PlaygroundTable.GetLength(0) * PlaygroundValues.PlaygroundTable.GetLength(1);
-            lblMinesCount.Content = PlaygroundValues.BombsCount;
+            lblPresetName.Content = PlaygroundValues.Instance.PresetName;
+            lblTime.Content = PlaygroundValues.Instance.ResultTime;
+            lblCellsCount.Content = PlaygroundValues.Instance.PlaygroundTable.Length * PlaygroundValues.Instance.PlaygroundTable[0].Length;
+            lblMinesCount.Content = PlaygroundValues.Instance.BombsCount;
 
             btnExit.Click += (s, e) => this.Close();
 

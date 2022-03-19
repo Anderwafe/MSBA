@@ -115,14 +115,14 @@ namespace MSBA
                 {
                     if (PlaygroundSettings.isInputCorrect(Convert.ToInt32(CellCount.Text), Convert.ToInt32(BombCount.Text), BombCountType.SelectedIndex == 0 ? PlaygroundSettings.BombCountType.Count : PlaygroundSettings.BombCountType.Percent))
                     {
-                        if (PlaygroundValues.CreatePlaygroundTable(Convert.ToInt32(CellCount.Text), BombCountType.SelectedIndex == 0 ? Convert.ToInt32(BombCount.Text) : Convert.ToInt32(MathF.Ceiling((Convert.ToSingle(BombCount.Text)/100f) * Convert.ToSingle(CellCount.Text)))))
+                        if (PlaygroundValues.Instance.CreatePlaygroundTable(Convert.ToInt32(CellCount.Text), BombCountType.SelectedIndex == 0 ? Convert.ToInt32(BombCount.Text) : Convert.ToInt32(MathF.Ceiling((Convert.ToSingle(BombCount.Text)/100f) * Convert.ToSingle(CellCount.Text)))))
                         {
                             gamePresets[PresetChoose.SelectedIndex - 1].CellsCount = CellCount.Text;
                             gamePresets[PresetChoose.SelectedIndex - 1].BombsCount = BombCount.Text;
                             gamePresets[PresetChoose.SelectedIndex - 1].BombsType = BombCountType.SelectedIndex == 0 ? PlaygroundSettings.BombCountType.Count : PlaygroundSettings.BombCountType.Percent;
-                            PlaygroundValues.PresetName = gamePresets.ElementAt(PresetChoose.SelectedIndex - 1).Name;
-                            PlaygroundValues.GameName = DateTime.Now.ToString() + "_" + PlaygroundValues.PresetName;
-
+                            PlaygroundValues.Instance.PresetName = gamePresets.ElementAt(PresetChoose.SelectedIndex - 1).Name;
+                            PlaygroundValues.Instance.GameName = DateTime.Now.ToString("G").Replace(":", "-").Replace(".", "-").Replace(" ", "_") + "_" + PlaygroundValues.Instance.PresetName;
+                            
                             this.Visibility = Visibility.Collapsed;
                             GameWindow gameWindow = new GameWindow();
                             gameWindow.ShowInTaskbar = true;
@@ -130,6 +130,7 @@ namespace MSBA
                             File.WriteAllText(System.IO.Path.Join(Environment.CurrentDirectory, "Presets"), JsonSerializer.Serialize<List<GamePreset>>(gamePresets));
                             gameWindow.ShowDialog();
                             this.Visibility = Visibility.Visible;
+                            PlaygroundValues.Instance = new();
                         }
                         else
                         {
@@ -144,6 +145,44 @@ namespace MSBA
                 catch(Exception a)
                 {
                     MessageBox.Show("Ошибка чтения параметров. \nПовторите ввод, или посмотрите подказку.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            };
+
+            btnGameContinue.Click += (s, e) =>
+            {
+                try
+                {
+                    string SavedGamePath = @"";
+                    if (!Directory.Exists(System.IO.Path.Join(Environment.CurrentDirectory, "Saves")))
+                    {
+                        throw new Exception();
+                    }
+                    else
+                    {
+                        if (Directory.GetFiles(System.IO.Path.Join(Environment.CurrentDirectory, "Saves")).Length == 0)
+                        {
+                            throw new Exception();
+                        }
+                        else
+                        {
+                            SavedGamePath = Directory.GetFiles(System.IO.Path.Join(Environment.CurrentDirectory, "Saves")).First();
+                        }
+                    }
+
+                    JsonSerializer.Deserialize<SerializablePlaygroundValues>(File.ReadAllText(SavedGamePath)).SetPlaygroundValues();
+
+                    this.Visibility = Visibility.Collapsed;
+                    GameWindow gameWindow = new GameWindow();
+                    gameWindow.ShowInTaskbar = true;
+                    gameWindow.WindowState = WindowState.Maximized;
+                    File.WriteAllText(System.IO.Path.Join(Environment.CurrentDirectory, "Presets"), JsonSerializer.Serialize<List<GamePreset>>(gamePresets));
+                    gameWindow.ShowDialog();
+                    this.Visibility = Visibility.Visible;
+                    PlaygroundValues.Instance = new();
+                }
+                catch (Exception a)
+                {
+                    MessageBox.Show("Ошибка чтения сохранения. \nПовторите попытку, или начните новую игру.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             };
         }

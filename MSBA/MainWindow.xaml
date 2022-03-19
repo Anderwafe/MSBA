@@ -48,6 +48,7 @@
             <Separator></Separator>
         </StackPanel>
         
-        <Button x:Name="btnGameStart" Grid.ColumnSpan="2" Grid.Row="3" Background="LightGray" BorderBrush="LightGray" Content="Старт!" FontSize="60" FontWeight="Black" FontFamily="Comic Sans"/>
+        <Button x:Name="btnGameStart" Grid.ColumnSpan="1" Grid.Row="3" Background="LightGray" BorderBrush="LightGray" Content="Старт!" FontSize="60" FontWeight="Black" FontFamily="Comic Sans"/>
+        <Button x:Name="btnGameContinue" Grid.Column="1" Grid.Row="3" Background="LightGray" BorderBrush="LightGray" Content="Продолжить" FontSize="30" FontFamily="Comic Sans"/>
     </Grid>
 </Window>

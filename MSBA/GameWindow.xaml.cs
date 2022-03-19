@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Text.Json;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -34,7 +35,7 @@ namespace MSBA
                 {
                     Directory.CreateDirectory(System.IO.Path.Join(Environment.CurrentDirectory, "Saves"));
                 }
-                File.WriteAllText(System.IO.Path.Join(Environment.CurrentDirectory, "Saves", PlaygroundValues.GameName), )
+                File.WriteAllText(System.IO.Path.Join(Environment.CurrentDirectory, "Saves", PlaygroundValues.Instance.GameName), JsonSerializer.Serialize<SerializablePlaygroundValues>(new()));
             };
             this.Closing += closingEvent;
 
@@ -42,33 +43,36 @@ namespace MSBA
             dispatcherTimer.Interval = TimeSpan.FromSeconds(1);
             dispatcherTimer.Stop();
 
-            Button[,] Buttons = new Button[PlaygroundValues.PlaygroundTable.GetLength(0), PlaygroundValues.PlaygroundTable.GetLength(1)];
-            StackPanel[] Panels = new StackPanel[PlaygroundValues.PlaygroundTable.GetLength(0)];
-            for(int i = 0; i < PlaygroundValues.PlaygroundTable.GetLength(0); i++)
+            this.Closing += (s, e) => { dispatcherTimer.Stop(); };
+
+            Button[,] Buttons = new Button[PlaygroundValues.Instance.PlaygroundTable.Length, PlaygroundValues.Instance.PlaygroundTable[0].Length];
+            StackPanel[] Panels = new StackPanel[PlaygroundValues.Instance.PlaygroundTable.Length];
+            for(int i = 0; i < PlaygroundValues.Instance.PlaygroundTable.Length; i++)
             {
                 Panels[i] = new StackPanel();
                 Panels[i].Orientation = Orientation.Horizontal;
                 Playground.Children.Add(Panels[i]);
             }
 
-            lblPresetName.Content += $" {PlaygroundValues.PresetName}";
-            lblBombs1.Content += $" {PlaygroundValues.BombsCount} /";
-            lblBombs2.Content = "0";
+            lblPresetName.Content += $" {PlaygroundValues.Instance.PresetName}";
+            lblBombs1.Content += $" {PlaygroundValues.Instance.BombsCount} /";
+            lblTime.Content = PlaygroundValues.Instance.ResultTime == "" ? "0" : PlaygroundValues.Instance.ResultTime;
 
-            for(int i = 0; i < PlaygroundValues.PlaygroundTable.GetLength(0); i++)
+            int buf = 0;
+            for(int i = 0; i < PlaygroundValues.Instance.PlaygroundTable.Length; i++)
             {
-                for(int j = 0; j < PlaygroundValues.PlaygroundTable.GetLength(1); j++)
+                for(int j = 0; j < PlaygroundValues.Instance.PlaygroundTable[i].Length; j++)
                 {
-                    Buttons[i, j] = new Button();
-                    Buttons[i, j].Name = $"btn{i}x{j}";
-                    Buttons[i, j].Background = new SolidColorBrush(Colors.Gray);
+                    Buttons[i, j] = CreateButton(i,j);
+                    /*Buttons[i, j].Name = $"btn{i}x{j}";
+                    Buttons[i, j].Background = new SolidColorBrush(Colors.LightGray);
                     Buttons[i, j].BorderBrush = new SolidColorBrush(Colors.Black);
                     Buttons[i, j].BorderThickness = new Thickness(1);
                     Buttons[i, j].Foreground = new SolidColorBrush(Colors.Black);
                     Buttons[i, j].Content = "";
                     Buttons[i, j].Height = 40;
                     Buttons[i, j].Width = 40;
-                    Buttons[i, j].FontSize = 14;
+                    Buttons[i, j].FontSize = 14;*/
                     Buttons[i, j].PreviewMouseDown += (s, e) =>
                     {
                         if(dispatcherTimer.IsEnabled == false)
@@ -83,11 +87,11 @@ namespace MSBA
                         if (e.LeftButton == MouseButtonState.Pressed)
                         {
 
-                            if ((Buttons[i, j].Background as SolidColorBrush).Color == Colors.Gray)
+                            if ((Buttons[i, j].Background as SolidColorBrush).Color == Colors.LightGray)
                             {
                                 if (Buttons[i, j].Content.ToString() != "F")
                                 {
-                                    if (PlaygroundValues.PlaygroundTable[i, j] == 'B')
+                                    if (PlaygroundValues.Instance.PlaygroundTable[i][j] == 'B')
                                     {
                                         Buttons[i, j].Background = new SolidColorBrush(Colors.OrangeRed);
                                         Image bomb = new Image();
@@ -95,16 +99,21 @@ namespace MSBA
                                         Buttons[i, j].Content = bomb;
                                         dispatcherTimer.IsEnabled = false;
                                         dispatcherTimer.Stop();
-                                        MessageBox.Show("Упс... Как говорится: \"Сапёр совершает лишь две ошибки за жизнь, и, боюсь, это была вторая...\"", "Ложись, мина!", MessageBoxButton.OK);
+                                        MessageBox.Show("Боюсь, времени уже не осталось.", "Фатальная ошибка...", MessageBoxButton.OK);
                                         this.Closing -= closingEvent;
+                                        if(File.Exists(System.IO.Path.Join(Environment.CurrentDirectory, "Saves", PlaygroundValues.Instance.GameName)))
+                                        {
+                                            File.Delete(System.IO.Path.Join(Environment.CurrentDirectory, "Saves", PlaygroundValues.Instance.GameName));
+                                        }
                                         this.Close();
                                     }
-                                    if (char.IsDigit(PlaygroundValues.PlaygroundTable[i, j]) && PlaygroundValues.PlaygroundTable[i, j] != '0')
+                                    PlaygroundValues.Instance.CellsStatus[i][j] = 'O';
+                                    if (char.IsDigit(PlaygroundValues.Instance.PlaygroundTable[i][j]) && PlaygroundValues.Instance.PlaygroundTable[i][j] != '0')
                                     {
                                         Buttons[i, j].Background = new SolidColorBrush(Colors.White);
-                                        Buttons[i, j].Content = PlaygroundValues.PlaygroundTable[i, j];
+                                        Buttons[i, j].Content = PlaygroundValues.Instance.PlaygroundTable[i][j];
                                     }
-                                    if (PlaygroundValues.PlaygroundTable[i, j] == '0')
+                                    if (PlaygroundValues.Instance.PlaygroundTable[i][j] == '0')
                                     {
                                         Buttons[i, j].Background = new SolidColorBrush(Colors.White);
                                         for (int i1 = i - 1; i1 <= i + 1; i1++)
@@ -130,28 +139,30 @@ namespace MSBA
                         {
                             if (e.RightButton == MouseButtonState.Pressed)
                             {
-                                if ((Buttons[i, j].Background as SolidColorBrush).Color == Colors.Gray)
+                                if ((Buttons[i, j].Background as SolidColorBrush).Color == Colors.LightGray)
                                 {
                                     if (Buttons[i, j].Content == "F")
                                     {
                                         Buttons[i, j].Content = "";
+                                        PlaygroundValues.Instance.CellsStatus[i][j] = 'C';
                                         lblBombs2.Content = (Convert.ToInt32(lblBombs2.Content) - 1).ToString();
                                     }
                                     else
                                     {
                                         Buttons[i, j].Content = "F";
+                                        PlaygroundValues.Instance.CellsStatus[i][j] = 'M';
                                         lblBombs2.Content = (Convert.ToInt32(lblBombs2.Content) + 1).ToString();
                                     }
                                 }
                             }
                         }
-                        if(Convert.ToInt32(lblBombs2.Content) == PlaygroundValues.BombsCount)
+                        if(Convert.ToInt32(lblBombs2.Content) == PlaygroundValues.Instance.BombsCount)
                         {
                             for(int a = 0; a < Buttons.GetLength(0); a++)
                             {
                                 for(int b = 0; b < Buttons.GetLength(1); b++)
                                 {
-                                    if(Buttons[a, b].Content == "" && (Buttons[a, b].Background as SolidColorBrush).Color == Colors.Gray)
+                                    if(Buttons[a, b].Content == "" && (Buttons[a, b].Background as SolidColorBrush).Color == Colors.LightGray)
                                     {
                                         return;
                                     }
@@ -161,24 +172,79 @@ namespace MSBA
                             dispatcherTimer.IsEnabled = false;
                             dispatcherTimer.Stop();
 
-                            PlaygroundValues.ResultTime = lblTime.Content.ToString();
+                            //PlaygroundValues.Instance.ResultTime = lblTime.Content.ToString();
                             WinWindow WW = new();
                             WW.ShowDialog();
                             //MessageBox.Show("Вау. Возможно, это и называется победой? \nПоздравляю!", "Неожиданно", MessageBoxButton.OK, MessageBoxImage.Information);
                             this.Closing -= closingEvent;
+                            if (File.Exists(System.IO.Path.Join(Environment.CurrentDirectory, "Saves", PlaygroundValues.Instance.GameName)))
+                            {
+                                File.Delete(System.IO.Path.Join(Environment.CurrentDirectory, "Saves", PlaygroundValues.Instance.GameName));
+                            }
                             this.Close();
                         }
                     };
 
                     Panels[i].Children.Add(Buttons[i, j]);
+
+                    if(PlaygroundValues.Instance.CellsStatus[i][j] == 'M')
+                    {
+                        buf++;
+                    }
                 }
             }
+            lblBombs2.Content = $"{buf}";
         }
 
+        private Button CreateButton(int i, int j)
+        {
+            Button button = new Button();
+
+
+            switch(PlaygroundValues.Instance.CellsStatus[i][j])
+            {
+                case 'C':
+                    button.Name = $"btn{i}x{j}";
+                    button.Background = new SolidColorBrush(Colors.LightGray);
+                    button.BorderBrush = new SolidColorBrush(Colors.Black);
+                    button.BorderThickness = new Thickness(1);
+                    button.Foreground = new SolidColorBrush(Colors.Black);
+                    button.Content = "";
+                    button.Height = 40;
+                    button.Width = 40;
+                    button.FontSize = 14;
+                    break;
+                case 'M':
+                    button.Name = $"btn{i}x{j}";
+                    button.Background = new SolidColorBrush(Colors.LightGray);
+                    button.BorderBrush = new SolidColorBrush(Colors.Black);
+                    button.BorderThickness = new Thickness(1);
+                    button.Foreground = new SolidColorBrush(Colors.Black);
+                    button.Content = "F";
+                    button.Height = 40;
+                    button.Width = 40;
+                    button.FontSize = 14;
+                    break;
+                case 'O':
+                    button.Name = $"btn{i}x{j}";
+                    button.Background = new SolidColorBrush(Colors.White);
+                    button.BorderBrush = new SolidColorBrush(Colors.Black);
+                    button.BorderThickness = new Thickness(1);
+                    button.Foreground = new SolidColorBrush(Colors.Black);
+                    button.Content = PlaygroundValues.Instance.PlaygroundTable[i][j] != '0' ? PlaygroundValues.Instance.PlaygroundTable[i][j] : "";
+                    button.Height = 40;
+                    button.Width = 40;
+                    button.FontSize = 14;
+                    break;
+            }
+            
+            return button;
+        }
 
         private void TimerCallbackHandler(object s, EventArgs e)
         {
             (lblTime as Label).Content = Convert.ToInt32((lblTime as Label).Content) + 1;
+            PlaygroundValues.Instance.ResultTime = lblTime.Content.ToString();
         }
     }
 }

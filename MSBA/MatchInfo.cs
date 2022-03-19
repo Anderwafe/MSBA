@@ -29,7 +29,7 @@ namespace MSBA
 
         public static string GetMatchInfo(MatchInfo Info)
         {
-            return JsonSerializer.Serialize<MatchInfo>(Info);
+            return JsonSerializer.Serialize<MatchInfo>(Info, new() { WriteIndented = true });
         }
     }
 }

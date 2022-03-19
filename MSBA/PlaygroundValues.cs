@@ -6,26 +6,47 @@ using System.Threading.Tasks;
 
 namespace MSBA
 {
-    public static class PlaygroundValues
+    public class PlaygroundValues
     {
-        public static string GameName = "";
+        private static PlaygroundValues _instance = new();
 
-        public static char[,] PlaygroundTable;
+
+        public static PlaygroundValues Instance
+        {
+            get { return _instance; }
+            set { _instance = value; }
+        }
+
+        public string GameName { get; set; } = "";
+
+        public char[][] PlaygroundTable { get; set; }
         // Table cells content marking:
         // N - none
         // B - bomb
         // 0-8 - bombs count
+        public char[][] CellsStatus { get; set; }
+        // C - closed
+        // M - marked
+        // O - opened
 
-        public static int BombsCount = 0;
-        public static string ResultTime = "";
-        public static string PresetName = "";
+        public int BombsCount { get; set; } = 0;
+        public string ResultTime { get; set; } = "";
+        public string PresetName { get; set; } = "";
 
-        public static bool CreatePlaygroundTable(int Cells, int Bombs)
+        public bool CreatePlaygroundTable(int Cells, int Bombs)
         {
             // Creating a empty playground table
             if(Math.Sqrt(Cells) % 1 == 0)
             {
-                PlaygroundTable = new char[(int)Math.Sqrt(Cells), (int)Math.Sqrt(Cells)];
+                PlaygroundTable = new char[(int)Math.Sqrt(Cells)][];
+                CellsStatus = new char[(int)Math.Sqrt(Cells)][];
+                for(int i = 0; i < PlaygroundTable.Length; i++)
+                {
+                    PlaygroundTable[i] = new char[(int)Math.Sqrt(Cells)];
+                    CellsStatus[i] = new char[(int)Math.Sqrt(Cells)];
+
+                }
+
             }
             else
             {
@@ -52,15 +73,23 @@ namespace MSBA
                 {
                     return false;
                 }
-                PlaygroundTable = new char[Math.Min(x, y), Math.Max(x, y)];
+                PlaygroundTable = new char[Math.Min(x, y)][];
+                CellsStatus = new char[Math.Min(x, y)][];
+                for (int i = 0; i < Math.Min(x,y); i++)
+                {
+                    PlaygroundTable[i] = new char[Math.Max(x, y)];
+                    CellsStatus[i] = new char[Math.Max(x, y)];
+
+                }
             }
 
             // Put in every cell of playground table '0'
-            for (int i = 0; i < PlaygroundTable.GetLength(0); i++)
+            for (int i = 0; i < PlaygroundTable.Length; i++)
             {
-                for (int j = 0; j < PlaygroundTable.GetLength(1); j++)
+                for (int j = 0; j < PlaygroundTable[i].Length; j++)
                 {
-                    PlaygroundTable[i, j] = '0';
+                    PlaygroundTable[i][j] = '0';
+                    CellsStatus[i][j] = 'C';
                 }
             }
 
@@ -74,13 +103,13 @@ namespace MSBA
             Random rand = new Random(DateTime.UtcNow.Millisecond);
             while (Bombs > 0)
             {
-                for (int i = 0; i < PlaygroundTable.GetLength(0); i++)
+                for (int i = 0; i < PlaygroundTable.Length; i++)
                 {
-                    for (int j = 0; j < PlaygroundTable.GetLength(1); j++)
+                    for (int j = 0; j < PlaygroundTable[i].Length; j++)
                     {
-                        if (PlaygroundTable[i, j] != 'B' && rand.Next(1000) < 70)
+                        if (PlaygroundTable[i][j] != 'B' && rand.Next(1000) < 70)
                         {
-                            PlaygroundTable[i, j] = 'B';
+                            PlaygroundTable[i][j] = 'B';
                             Bombs--;
                             if (Bombs == 0)
                                 break;
@@ -92,17 +121,17 @@ namespace MSBA
             }
 
             // Adding numbers to playground table
-            for(int i = 0; i < PlaygroundTable.GetLength(0); i++)
+            for(int i = 0; i < PlaygroundTable.Length; i++)
             {
-                for (int j = 0; j < PlaygroundTable.GetLength(1); j++)
+                for (int j = 0; j < PlaygroundTable[i].Length; j++)
                 {
-                    if (PlaygroundTable[i, j] == 'B')
+                    if (PlaygroundTable[i][j] == 'B')
                     {
                         for (int i1 = i - 1; i1 <= i + 1; i1++)
                         {
                             for (int j1 = j - 1; j1 <= j + 1; j1++)
                             {
-                                if (i1 < 0 || j1 < 0 || i1 > PlaygroundTable.GetLength(0) - 1 || j1 > PlaygroundTable.GetLength(1) - 1)
+                                if (i1 < 0 || j1 < 0 || i1 > PlaygroundTable.Length - 1 || j1 > PlaygroundTable[0].Length - 1)
                                 {
                                     continue;
                                 }
@@ -110,11 +139,11 @@ namespace MSBA
                                 {
                                     continue;
                                 }
-                                if (PlaygroundTable[i1, j1] == 'B')
+                                if (PlaygroundTable[i1][j1] == 'B')
                                 {
                                     continue;
                                 }
-                                PlaygroundTable[i1, j1] = (char)(Convert.ToInt32(PlaygroundTable[i1, j1]) + 1);
+                                PlaygroundTable[i1][j1] = (char)(Convert.ToInt32(_instance.PlaygroundTable[i1][j1]) + 1);
                             }
                         }
                     }
@@ -122,5 +151,36 @@ namespace MSBA
             }
             return true;
         }
+    }
+
+    public class SerializablePlaygroundValues
+    {
+        public SerializablePlaygroundValues()
+        {
+            GameName = PlaygroundValues.Instance.GameName;
+            PlaygroundTable = PlaygroundValues.Instance.PlaygroundTable;
+            CellsStatus = PlaygroundValues.Instance.CellsStatus;
+            BombsCount = PlaygroundValues.Instance.BombsCount;
+            ResultTime = PlaygroundValues.Instance.ResultTime;
+            PresetName = PlaygroundValues.Instance.PresetName;
+        }
+
+        public void SetPlaygroundValues()
+        {
+            PlaygroundValues.Instance = new();
+            PlaygroundValues.Instance.GameName = GameName;
+            PlaygroundValues.Instance.PlaygroundTable = PlaygroundTable;
+            PlaygroundValues.Instance.CellsStatus = CellsStatus;
+            PlaygroundValues.Instance.BombsCount = BombsCount;
+            PlaygroundValues.Instance.ResultTime = ResultTime;
+            PlaygroundValues.Instance.PresetName = PresetName;
+        }
+
+        public string GameName { get; set; }
+        public char[][] PlaygroundTable { get; set; }
+        public char[][] CellsStatus { get; set; }
+        public int BombsCount { get; set; }
+        public string ResultTime { get; set; }
+        public string PresetName { get; set; }
     }
 }
